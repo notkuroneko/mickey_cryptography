@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <time.h> 
+#include <chrono> 
 
 using namespace std;
 
@@ -83,6 +83,13 @@ void read_input(bool (&x)[80], bool (&y)[80], int &n){
     n = count;
 }
 
+void read_plaintext(string &x){
+    ifstream f;
+    f.open("mickey_plaintext");
+    getline(f, x);
+    f.close();
+}
+
 int main(){
     bool iv[80];
     bool k[80];
@@ -121,9 +128,7 @@ int main(){
     cout<<endl<<endl;*/
     
     string input_str;
-    cout << "Enter Plaintext: " << endl;
-    cin.ignore();
-    getline(cin, input_str);
+    read_plaintext(input_str);
     int temp, count;
     bool bit_stream[8*input_str.length()];
     for (int i=0; i<input_str.length(); i++) {
@@ -168,15 +173,20 @@ int main(){
     bool keystream[8*(input_str.length()+1)];
 
     //place chrono here
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+	start = std::chrono::system_clock::now();
     init(r,s,k,iv,iv_length);
     for (int i = 0; i<8*(input_str.length()+1); i++) {
         keystream[i]=r[0]^s[0];
         cyphertext[i]=bit_stream[i]^keystream[i];
         clock_kg(r,s,0,0);
     }
+    end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
-    cout << "Cyphertext: ";
+    /*cout << "Cyphertext: ";
     for (int i = 0; i<8*(input_str.length()+1); i++) {if (!(i%4)) cout << " "; cout << cyphertext[i];}
-    cout << endl;
+    cout << endl;*/
     return 0;
 }
